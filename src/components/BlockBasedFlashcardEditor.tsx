@@ -32,6 +32,7 @@ interface BlockBasedFlashcardEditorProps {
 interface BlockComponentProps {
   block: Block;
   isActive: boolean;
+  isPendingFlashcard?: FlashcardType | null;
   onUpdate: (id: string, content: string) => void;
   onFocus: (id: string) => void;
   onKeyDown: (e: React.KeyboardEvent, blockId: string) => void;
@@ -41,6 +42,7 @@ interface BlockComponentProps {
 function BlockComponent({ 
   block, 
   isActive, 
+  isPendingFlashcard,
   onUpdate, 
   onFocus, 
   onKeyDown, 
@@ -106,6 +108,16 @@ function BlockComponent({
 
   return (
     <div className="group relative min-h-0">
+      {/* Barrinha lateral dinâmica - aparece quando clica nos ícones */}
+      {isPendingFlashcard && (
+        <div className={cn(
+          "absolute left-0 top-0 w-1 h-full rounded-full transition-all duration-300 ease-out z-10 opacity-80",
+          isPendingFlashcard === 'traditional' && "bg-blue-400",
+          isPendingFlashcard === 'word-hiding' && "bg-amber-400",
+          isPendingFlashcard === 'true-false' && "bg-green-400"
+        )} />
+      )}
+      
       {/* Botões flutuantes verticais */}
       {isActive && block.type === 'paragraph' && block.content.trim() && (
         <div className="absolute -right-16 top-0 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -152,7 +164,8 @@ function BlockComponent({
           "focus:outline-none focus:ring-0 text-foreground",
           "placeholder:text-muted-foreground/50",
           isActive && "ring-2 ring-primary/20 rounded-md",
-          "p-0 m-0 leading-tight block"
+          "p-0 m-0 leading-tight block",
+          isPendingFlashcard && "pl-4" // adicionar padding quando há barrinha
         )}
         style={{ 
           height: 'auto',
@@ -201,6 +214,7 @@ export function BlockBasedFlashcardEditor({ onSave, placeholder, deckId }: Block
     return initialBlocks[0]?.id || generateBlockId();
   });
   const [selectedText, setSelectedText] = useState('');
+  const [pendingFlashcardType, setPendingFlashcardType] = useState<{blockId: string, type: FlashcardType} | null>(null);
   const [pendingWordHiding, setPendingWordHiding] = useState<{blockId: string, words: string[]} | null>(null);
   const [pendingTrueFalse, setPendingTrueFalse] = useState<{blockId: string, statement: string} | null>(null);
 
@@ -263,6 +277,9 @@ export function BlockBasedFlashcardEditor({ onSave, placeholder, deckId }: Block
     const block = blocks.find(b => b.id === blockId);
     if (!block || !block.content.trim()) return;
 
+    // Definir tipo de flashcard pendente para mostrar a barrinha
+    setPendingFlashcardType({ blockId, type: flashcardType });
+
     if (flashcardType === 'traditional') {
       // Para flashcard tradicional, apenas inserir o símbolo " → " ao final do texto
       const currentContent = block.content;
@@ -318,6 +335,9 @@ export function BlockBasedFlashcardEditor({ onSave, placeholder, deckId }: Block
     // Salvar o flashcard mas NÃO converter o bloco visualmente
     // O bloco permanece como texto normal mostrando "Escrita → verso do card"
     onSave(front, back, 'traditional');
+    
+    // Limpar estado pendente para remover a barrinha
+    setPendingFlashcardType(null);
     
     return true;
   }, [onSave]);
@@ -407,6 +427,7 @@ export function BlockBasedFlashcardEditor({ onSave, placeholder, deckId }: Block
               <BlockComponent
                 block={block}
                 isActive={activeBlockId === block.id}
+                isPendingFlashcard={pendingFlashcardType?.blockId === block.id ? pendingFlashcardType.type : null}
                 onUpdate={updateBlock}
                 onFocus={handleFocus}
                 onKeyDown={handleKeyDown}
