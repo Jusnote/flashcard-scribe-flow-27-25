@@ -1,0 +1,50 @@
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AppSidebar } from "./components/AppSidebar";
+import HomePage from "./pages/HomePage";
+import Index from "./pages/Index";
+import StudyPage from "./pages/StudyPage";
+import EditResumoPage from "./pages/EditResumoPage";
+import ResumosListPage from "./pages/ResumosListPage";
+import QuestoesPage from "./pages/QuestoesPage";
+import NotFound from "./pages/NotFound";
+
+const queryClient = new QueryClient();
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <SidebarProvider defaultOpen={false}>
+          <div className="w-full h-screen bg-background">
+            <AppSidebar />
+            <div className="flex flex-col h-full ml-20">
+              <header className="h-12 flex items-center border-b border-border bg-card/50 backdrop-blur px-4 flex-shrink-0">
+                <SidebarTrigger className="text-sidebar-foreground" />
+              </header>
+              <main className="flex-1 h-0">
+                <Routes>
+                  <Route path="/" element={<HomePage />} />
+                  <Route path="/flashcards" element={<Index />} />
+                  <Route path="/resumos-list" element={<ResumosListPage />} />
+                  <Route path="/resumos" element={<EditResumoPage />} />
+                  <Route path="/study" element={<StudyPage />} />
+                  <Route path="/questoes" element={<QuestoesPage />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </main>
+            </div>
+          </div>
+        </SidebarProvider>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+export default App;
