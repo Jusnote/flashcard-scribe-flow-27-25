@@ -108,18 +108,21 @@ function BlockComponent({
 
   return (
     <div className="group relative min-h-0">
-      {/* Barrinha lateral dinâmica - aparece quando clica nos ícones */}
-      {isPendingFlashcard && (
+      {/* Barrinha lateral dinâmica - aparece quando clica nos ícones ou quando há flashcard salvo */}
+      {(isPendingFlashcard || (block.content.includes(' → ') && !block.flashcardData)) && (
         <div className={cn(
-          "absolute left-0 top-0 w-1 h-full rounded-full transition-all duration-300 ease-out z-10 opacity-80",
-          isPendingFlashcard === 'traditional' && "bg-blue-400",
-          isPendingFlashcard === 'word-hiding' && "bg-amber-400",
-          isPendingFlashcard === 'true-false' && "bg-green-400"
+          "absolute left-0 top-0 w-1 h-full rounded-full transition-all duration-300 ease-out z-10",
+          // Para flashcards pendentes (semitransparente)
+          isPendingFlashcard && isPendingFlashcard === 'traditional' && "bg-blue-400 opacity-80",
+          isPendingFlashcard && isPendingFlashcard === 'word-hiding' && "bg-amber-400 opacity-80",
+          isPendingFlashcard && isPendingFlashcard === 'true-false' && "bg-green-400 opacity-80",
+          // Para flashcards salvos como texto (opacidade total)
+          !isPendingFlashcard && block.content.includes(' → ') && "bg-blue-500 opacity-100"
         )} />
       )}
       
       {/* Botões flutuantes verticais */}
-      {isActive && block.type === 'paragraph' && block.content.trim() && (
+      {isActive && block.type === 'paragraph' && block.content.trim() && !block.content.includes(' → ') && (
         <div className="absolute -right-16 top-0 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           <Button
             variant="outline"
@@ -165,7 +168,7 @@ function BlockComponent({
           "placeholder:text-muted-foreground/50",
           isActive && "ring-2 ring-primary/20 rounded-md",
           "p-0 m-0 leading-tight block",
-          isPendingFlashcard && "pl-4" // adicionar padding quando há barrinha
+          (isPendingFlashcard || block.content.includes(' → ')) && "pl-4" // adicionar padding quando há barrinha
         )}
         style={{ 
           height: 'auto',
@@ -336,8 +339,8 @@ export function BlockBasedFlashcardEditor({ onSave, placeholder, deckId }: Block
     // O bloco permanece como texto normal mostrando "Escrita → verso do card"
     onSave(front, back, 'traditional');
     
-    // Limpar estado pendente para remover a barrinha
-    setPendingFlashcardType(null);
+    // NÃO limpar o estado pendente - a barrinha deve permanecer para indicar que é um flashcard
+    // setPendingFlashcardType(null); // Comentado para manter a barrinha
     
     return true;
   }, [onSave]);
@@ -385,6 +388,7 @@ export function BlockBasedFlashcardEditor({ onSave, placeholder, deckId }: Block
     onSave(flashcardData.front, flashcardData.back, 'word-hiding', undefined, words);
     
     setPendingWordHiding(null);
+    // NÃO limpar pendingFlashcardType para manter a barrinha
   };
 
   // Confirmar verdadeiro/falso
@@ -403,6 +407,7 @@ export function BlockBasedFlashcardEditor({ onSave, placeholder, deckId }: Block
     onSave(flashcardData.front, flashcardData.back, 'true-false', undefined, undefined, flashcardData.explanation);
     
     setPendingTrueFalse(null);
+    // NÃO limpar pendingFlashcardType para manter a barrinha
   };
 
   // Função para limpar estado salvo (útil para testes)
