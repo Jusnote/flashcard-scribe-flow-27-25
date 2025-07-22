@@ -24,6 +24,7 @@ export function ModernFlashcardEditor({ onSave, placeholder, existingCards = [],
   const [hiddenWords, setHiddenWords] = useState<string[]>([]);
   const [currentLineType, setCurrentLineType] = useState<'traditional' | 'word-hiding' | 'true-false' | null>(null);
   const [lineHeights, setLineHeights] = useState<number[]>([]);
+  const [activeBars, setActiveBars] = useState<{lineIndex: number, type: 'traditional' | 'word-hiding' | 'true-false', height: number}[]>([]);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
   // Identificar flashcards no texto atual
@@ -112,6 +113,14 @@ export function ModernFlashcardEditor({ onSave, placeholder, existingCards = [],
     });
 
     setLineHeights(heights);
+    
+    // Atualizar altura das barrinhas ativas conforme o conteúdo cresce
+    setActiveBars(prev => 
+      prev.map(bar => ({
+        ...bar,
+        height: heights[bar.lineIndex] || 24
+      }))
+    );
   }, [text]);
 
   // Auto-resize textarea e calcular alturas das linhas
@@ -181,6 +190,10 @@ export function ModernFlashcardEditor({ onSave, placeholder, existingCards = [],
     setTrueFalseAnswer(null);
     setShowTrueFalseOptions(false);
     setCurrentLineType(null);
+    
+    // Remover barrinha ativa da linha que foi salva
+    const currentLineIndex = getCurrentLineIndex();
+    setActiveBars(prev => prev.filter(bar => bar.lineIndex !== currentLineIndex));
   };
 
   const handleTraditionalType = () => {
@@ -190,10 +203,17 @@ export function ModernFlashcardEditor({ onSave, placeholder, existingCards = [],
     const cursorPosition = textarea.selectionStart;
     const beforeCursor = text.substring(0, cursorPosition);
     const afterCursor = text.substring(cursorPosition);
+    const currentLineIndex = getCurrentLineIndex();
     
     const newText = beforeCursor + ' == ' + afterCursor;
     setText(newText);
     setCurrentLineType('traditional');
+    
+    // Adicionar barrinha ativa para esta linha
+    setActiveBars(prev => {
+      const filtered = prev.filter(bar => bar.lineIndex !== currentLineIndex);
+      return [...filtered, { lineIndex: currentLineIndex, type: 'traditional', height: 24 }];
+    });
     
     // Posicionar cursor após o separador
     setTimeout(() => {
@@ -214,15 +234,23 @@ export function ModernFlashcardEditor({ onSave, placeholder, existingCards = [],
     const selectedText = text.substring(start, end);
     const beforeSelection = text.substring(0, start);
     const afterSelection = text.substring(end);
+    const currentLineIndex = getCurrentLineIndex();
     
     // Marcar palavra para ocultar com {{}}
     const newText = beforeSelection + `{{${selectedText}}}` + afterSelection;
     setText(newText);
+    setCurrentLineType('word-hiding');
     
     // Adicionar à lista de palavras ocultas
     if (!hiddenWords.includes(selectedText)) {
       setHiddenWords([...hiddenWords, selectedText]);
     }
+    
+    // Adicionar barrinha ativa para esta linha
+    setActiveBars(prev => {
+      const filtered = prev.filter(bar => bar.lineIndex !== currentLineIndex);
+      return [...filtered, { lineIndex: currentLineIndex, type: 'word-hiding', height: 24 }];
+    });
     
     setTimeout(() => {
       textarea.focus();
@@ -231,7 +259,15 @@ export function ModernFlashcardEditor({ onSave, placeholder, existingCards = [],
   };
 
   const handleTrueFalseType = () => {
+    const currentLineIndex = getCurrentLineIndex();
+    setCurrentLineType('true-false');
     setShowTrueFalseOptions(true);
+    
+    // Adicionar barrinha ativa para esta linha
+    setActiveBars(prev => {
+      const filtered = prev.filter(bar => bar.lineIndex !== currentLineIndex);
+      return [...filtered, { lineIndex: currentLineIndex, type: 'true-false', height: 24 }];
+    });
   };
 
   const handleTrueFalseSelect = (answer: boolean) => {
@@ -286,6 +322,7 @@ export function ModernFlashcardEditor({ onSave, placeholder, existingCards = [],
           <div className="relative h-full">
             {/* Barrinhas coloridas de identificação - acompanham altura do texto */}
             <div className="absolute left-0 top-0 w-1 h-full pointer-events-none z-10">
+              {/* Barrinhas dos flashcards identificados */}
               {flashcards.map((flashcard, index) => {
                 const colors = {
                   'traditional': 'bg-blue-500',
@@ -307,7 +344,7 @@ export function ModernFlashcardEditor({ onSave, placeholder, existingCards = [],
                 
                 return (
                   <div
-                    key={index}
+                    key={`flashcard-${index}`}
                     className={cn(
                       "absolute left-2 w-1 rounded-full transition-all duration-300 ease-out",
                       colors[flashcard.type]
@@ -317,6 +354,46 @@ export function ModernFlashcardEditor({ onSave, placeholder, existingCards = [],
                       height: `${Math.max(barHeight - 4, 20)}px` // altura mínima de 20px
                     }}
                     title={`${flashcard.type.charAt(0).toUpperCase() + flashcard.type.slice(1)}: ${flashcard.content.slice(0, 50)}...`}
+                  />
+                );
+              })}
+              
+              {/* Barrinhas ativas - aparecem quando o usuário clica nos ícones */}
+              {activeBars.map((activeBar, index) => {
+                const colors = {
+                  'traditional': 'bg-blue-400',
+                  'word-hiding': 'bg-amber-400', 
+                  'true-false': 'bg-green-400'
+                };
+                
+                // Calcular posição e altura baseadas nas alturas reais das linhas
+                let topPosition = 8; // padding inicial
+                let barHeight = activeBar.height;
+                
+                if (lineHeights.length > 0) {
+                  // Somar todas as alturas das linhas anteriores
+                  topPosition = lineHeights.slice(0, activeBar.lineIndex).reduce((sum, height) => sum + height, 8);
+                  
+                  // Usar a altura real da linha atual
+                  barHeight = lineHeights[activeBar.lineIndex] || 24;
+                }
+                
+                // Verificar se não há flashcard já identificado nesta linha
+                const hasFlashcard = flashcards.some(fc => fc.lineIndex === activeBar.lineIndex);
+                if (hasFlashcard) return null;
+                
+                return (
+                  <div
+                    key={`active-${index}`}
+                    className={cn(
+                      "absolute left-2 w-1 rounded-full transition-all duration-300 ease-out opacity-80",
+                      colors[activeBar.type]
+                    )}
+                    style={{
+                      top: `${topPosition}px`,
+                      height: `${Math.max(barHeight - 4, 20)}px` // altura mínima de 20px
+                    }}
+                    title={`${activeBar.type.charAt(0).toUpperCase() + activeBar.type.slice(1)} em edição`}
                   />
                 );
               })}
