@@ -127,7 +127,86 @@ export const CriarQuestaoForm: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <Label htmlFor="banca" className="text-base font-semibold">
+              Banca
+            </Label>
+            <Input
+              id="banca"
+              value={questao.banca}
+              onChange={(e) => handleQuestaoChange('banca', e.target.value)}
+              placeholder="Ex: CESPE, FGV, VUNESP"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="ano" className="text-base font-semibold">
+              Ano
+            </Label>
+            <Input
+              id="ano"
+              type="number"
+              value={questao.ano || ''}
+              onChange={(e) => handleQuestaoChange('ano', e.target.value ? parseInt(e.target.value) : null)}
+              placeholder="Ex: 2024"
+              min="1990"
+              max="2030"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="cargo" className="text-base font-semibold">
+              Cargo
+            </Label>
+            <Input
+              id="cargo"
+              value={questao.cargo}
+              onChange={(e) => handleQuestaoChange('cargo', e.target.value)}
+              placeholder="Ex: Procurador, Juiz, Analista"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <Label htmlFor="modalidade" className="text-base font-semibold">
+              Modalidade
+            </Label>
+            <Select
+              value={questao.modalidade}
+              onValueChange={(value) => handleQuestaoChange('modalidade', value as any)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione a modalidade" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="multipla_escolha">Múltipla Escolha</SelectItem>
+                <SelectItem value="verdadeiro_falso">Verdadeiro ou Falso</SelectItem>
+                <SelectItem value="dissertativa">Dissertativa</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="dificuldade" className="text-base font-semibold">
+              Dificuldade
+            </Label>
+            <Select
+              value={questao.dificuldade}
+              onValueChange={(value) => handleQuestaoChange('dificuldade', value as any)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione a dificuldade" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Fácil">Fácil</SelectItem>
+                <SelectItem value="Médio">Médio</SelectItem>
+                <SelectItem value="Difícil">Difícil</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <div>
             <Label htmlFor="nivel" className="text-base font-semibold">
               Nível de Dificuldade
@@ -146,25 +225,25 @@ export const CriarQuestaoForm: React.FC = () => {
               </SelectContent>
             </Select>
           </div>
+        </div>
 
-          <div>
-            <Label htmlFor="tipo" className="text-base font-semibold">
-              Tipo de Questão
-            </Label>
-            <Select
-              value={questao.tipo}
-              onValueChange={(value) => handleQuestaoChange('tipo', value as any)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione o tipo" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="multipla_escolha">Múltipla Escolha</SelectItem>
-                <SelectItem value="verdadeiro_falso">Verdadeiro ou Falso</SelectItem>
-                <SelectItem value="dissertativa">Dissertativa</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        <div>
+          <Label htmlFor="tipo" className="text-base font-semibold">
+            Tipo de Questão
+          </Label>
+          <Select
+            value={questao.tipo}
+            onValueChange={(value) => handleQuestaoChange('tipo', value as any)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecione o tipo" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="multipla_escolha">Múltipla Escolha</SelectItem>
+              <SelectItem value="verdadeiro_falso">Verdadeiro ou Falso</SelectItem>
+              <SelectItem value="dissertativa">Dissertativa</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {questao.tipo === 'multipla_escolha' && (

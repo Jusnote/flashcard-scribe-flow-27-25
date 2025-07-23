@@ -56,6 +56,7 @@ const filtrosDisponiveis = {
   assuntos: ["MPF 2025", "Direitos Fundamentais", "Atos Administrativos", "Contratos"],
   bancas: ["CESPE", "FGV", "VUNESP", "FCC"],
   anos: ["2025", "2024", "2023", "2022"],
+  cargos: ["Procurador", "Juiz", "Analista", "Técnico", "Auditor"],
   modalidades: ["Múltipla Escolha", "Certo/Errado"],
   dificuldades: ["Fácil", "Médio", "Difícil"]
 };
@@ -101,6 +102,7 @@ export default function QuestoesPage() {
   const [assunto, setAssunto] = useState("");
   const [banca, setBanca] = useState("");
   const [ano, setAno] = useState("");
+  const [cargo, setCargo] = useState("");
   const [modalidade, setModalidade] = useState("");
   const [dificuldade, setDificuldade] = useState("");
 
@@ -292,6 +294,17 @@ export default function QuestoesPage() {
                     <SelectContent>
                       {filtrosDisponiveis.anos.map((a) => (
                         <SelectItem key={a} value={a}>{a}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={cargo} onValueChange={setCargo}>
+                    <SelectTrigger className="bg-background/50 border-border/50 focus:border-primary/50">
+                      <SelectValue placeholder="Selecionar Cargo" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {filtrosDisponiveis.cargos.map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>

@@ -9,6 +9,11 @@ export type Database = {
           enunciado: string;
           disciplina: string | null;
           assunto: string | null;
+          banca: string | null;
+          ano: number | null;
+          cargo: string | null;
+          modalidade: 'multipla_escolha' | 'verdadeiro_falso' | 'dissertativa' | null;
+          dificuldade: 'Fácil' | 'Médio' | 'Difícil' | null;
           nivel: 'Fácil' | 'Médio' | 'Difícil' | null;
           tipo: 'multipla_escolha' | 'verdadeiro_falso' | 'dissertativa';
           created_at: string;
@@ -21,6 +26,11 @@ export type Database = {
           enunciado: string;
           disciplina?: string | null;
           assunto?: string | null;
+          banca?: string | null;
+          ano?: number | null;
+          cargo?: string | null;
+          modalidade?: 'multipla_escolha' | 'verdadeiro_falso' | 'dissertativa' | null;
+          dificuldade?: 'Fácil' | 'Médio' | 'Difícil' | null;
           nivel?: 'Fácil' | 'Médio' | 'Difícil' | null;
           tipo?: 'multipla_escolha' | 'verdadeiro_falso' | 'dissertativa';
           created_at?: string;
@@ -33,6 +43,11 @@ export type Database = {
           enunciado?: string;
           disciplina?: string | null;
           assunto?: string | null;
+          banca?: string | null;
+          ano?: number | null;
+          cargo?: string | null;
+          modalidade?: 'multipla_escolha' | 'verdadeiro_falso' | 'dissertativa' | null;
+          dificuldade?: 'Fácil' | 'Médio' | 'Difícil' | null;
           nivel?: 'Fácil' | 'Médio' | 'Difícil' | null;
           tipo?: 'multipla_escolha' | 'verdadeiro_falso' | 'dissertativa';
           created_at?: string;

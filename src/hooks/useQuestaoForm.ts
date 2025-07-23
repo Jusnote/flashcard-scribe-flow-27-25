@@ -8,6 +8,11 @@ interface QuestaoForm {
   enunciado: string;
   disciplina: string;
   assunto: string;
+  banca: string;
+  ano: number | null;
+  cargo: string;
+  modalidade: 'multipla_escolha' | 'verdadeiro_falso' | 'dissertativa' | null;
+  dificuldade: 'Fácil' | 'Médio' | 'Difícil' | null;
   nivel: 'Fácil' | 'Médio' | 'Difícil';
   tipo: 'multipla_escolha' | 'verdadeiro_falso' | 'dissertativa';
 }
@@ -20,6 +25,11 @@ export const useQuestaoForm = () => {
     enunciado: '',
     disciplina: '',
     assunto: '',
+    banca: '',
+    ano: null,
+    cargo: '',
+    modalidade: null,
+    dificuldade: null,
     nivel: 'Médio',
     tipo: 'multipla_escolha'
   });
@@ -37,7 +47,7 @@ export const useQuestaoForm = () => {
     geral?: string;
   }>({});
 
-  const handleQuestaoChange = (field: keyof QuestaoForm, value: string) => {
+  const handleQuestaoChange = (field: keyof QuestaoForm, value: string | number | null) => {
     setQuestao(prev => ({
       ...prev,
       [field]: value
@@ -156,13 +166,17 @@ export const useQuestaoForm = () => {
   };
 
   const prepararDadosParaSalvar = () => {
-    const questaoParaSalvar: Omit<Questao, 'id' | 'user_id' | 'created_at' | 'updated_at'> = {
+    const questaoParaSalvar: Omit<Questao, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'tipo'> = {
       titulo: questao.titulo,
       enunciado: questao.enunciado,
       disciplina: questao.disciplina || null,
       assunto: questao.assunto || null,
-      nivel: questao.nivel,
-      tipo: questao.tipo
+      banca: questao.banca || null,
+      ano: questao.ano,
+      cargo: questao.cargo || null,
+      modalidade: questao.modalidade,
+      dificuldade: questao.dificuldade,
+      nivel: questao.nivel
     };
 
     return {
@@ -177,6 +191,11 @@ export const useQuestaoForm = () => {
       enunciado: '',
       disciplina: '',
       assunto: '',
+      banca: '',
+      ano: null,
+      cargo: '',
+      modalidade: null,
+      dificuldade: null,
       nivel: 'Médio',
       tipo: 'multipla_escolha'
     });

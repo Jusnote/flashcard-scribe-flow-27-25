@@ -64,7 +64,7 @@ export const useQuestoes = () => {
   };
 
   const createQuestao = async (
-    questao: Omit<Questao, 'id' | 'user_id' | 'created_at' | 'updated_at'>,
+    questao: Omit<Questao, 'id' | 'user_id' | 'created_at' | 'updated_at' | 'tipo'>,
     alternativas: Omit<Alternativa, 'id' | 'questao_id' | 'created_at'>[]
   ) => {
     try {
