@@ -11,6 +11,7 @@ import StudyPage from "./pages/StudyPage";
 import EditResumoPage from "./pages/EditResumoPage";
 import ResumosListPage from "./pages/ResumosListPage";
 import QuestoesPage from "./pages/QuestoesPage";
+import CriarQuestaoPage from "./pages/CriarQuestaoPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
                   <Route path="/resumos" element={<EditResumoPage />} />
                   <Route path="/study" element={<StudyPage />} />
                   <Route path="/questoes" element={<QuestoesPage />} />
+                  <Route path="/criar-questao" element={<CriarQuestaoPage />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
@@ -48,3 +50,4 @@ const App = () => (
 );
 
 export default App;
+

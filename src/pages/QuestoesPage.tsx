@@ -6,7 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { ChevronDown, ChevronUp, Search, X, Bookmark, Clock, CheckCircle, XCircle, AlertCircle, Filter, SlidersHorizontal, Grid3X3, List } from "lucide-react";
+import { ChevronDown, ChevronUp, Search, X, Bookmark, Clock, CheckCircle, XCircle, AlertCircle, Filter, SlidersHorizontal, Grid3X3, List, Plus } from "lucide-react";
+import { Link } from "react-router-dom";
+import { ListaQuestoes } from "@/components/ListaQuestoes";
+import { useQuestoes } from "@/hooks/useQuestoes";
 
 // Dados estáticos para demonstração
 const questoesEstaticas = [
@@ -65,6 +68,7 @@ export default function QuestoesPage() {
   const [respostasSelecionadas, setRespostasSelecionadas] = useState<{[key: string]: string}>({});
   const [questoesPorPagina, setQuestoesPorPagina] = useState("10");
   const [visualizacao, setVisualizacao] = useState<"grid" | "list">("list");
+  const { questoes, loading, error } = useQuestoes();
   
   // Filtros individuais
   const [palavraChave, setPalavraChave] = useState("");
@@ -121,6 +125,14 @@ export default function QuestoesPage() {
             </div>
             
             <div className="flex items-center gap-3">
+              {/* Botão de Criar Nova Questão */}
+              <Button asChild variant="default" size="sm" className="gap-2 bg-green-600 hover:bg-green-700 text-white shadow-lg">
+                <Link to="/criar-questao">
+                  <Plus className="h-4 w-4" />
+                  Criar Questão
+                </Link>
+              </Button>
+              
               {/* Controles de Visualização */}
               <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-lg">
                 <Button
@@ -337,7 +349,10 @@ export default function QuestoesPage() {
             </Select>
           </div>
 
-          {/* Cards de Questões Redesenhadas */}
+          {/* Componente de Lista de Questões do Supabase */}
+          <ListaQuestoes />
+
+          {/* Cards de Questões Redesenhadas (Estáticas) */}
           <div className={visualizacao === "grid" ? "grid grid-cols-1 lg:grid-cols-2 gap-6" : "space-y-6"}>
             {questoesEstaticas.map((questao) => (
               <Card key={questao.id} className="group hover:shadow-xl transition-all duration-300 bg-card/60 backdrop-blur-sm border-border/50 hover:border-primary/30 overflow-hidden">
@@ -441,3 +456,4 @@ export default function QuestoesPage() {
     </div>
   );
 }
+

@@ -28,7 +28,8 @@ import {
   TrendingUp,
   ShoppingCart,
   Skull,
-  HelpCircle
+  HelpCircle,
+  Plus
 } from "lucide-react";
 
 const navigationItems = [
@@ -37,6 +38,7 @@ const navigationItems = [
   { title: "Resumos", url: "/resumos-list", icon: FileText },
   { title: "Calendário", url: "/calendar", icon: Calendar },
   { title: "Questões", url: "/questoes", icon: HelpCircle },
+  { title: "Criar Questão", url: "/criar-questao", icon: Plus },
   { title: "Segurança", url: "/security", icon: Shield },
   { title: "Configurações", url: "/settings", icon: Settings },
 ];
@@ -141,3 +143,4 @@ export function AppSidebar() {
     </TooltipProvider>
   );
 }
+
