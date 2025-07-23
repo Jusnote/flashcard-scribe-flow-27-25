@@ -29,8 +29,13 @@ import {
   ShoppingCart,
   Skull,
   HelpCircle,
-  Plus
+  Plus,
+  LogOut,
+  UserCircle
 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 const navigationItems = [
   { title: "Dashboard", url: "/", icon: Home },
@@ -53,6 +58,7 @@ const toolsItems = [
 export function AppSidebar() {
   const location = useLocation();
   const currentPath = location.pathname;
+  const { user, signOut } = useAuth();
 
   const isActive = (path: string) => {
     if (path === "/") {
@@ -65,6 +71,15 @@ export function AppSidebar() {
     return isActive(path)
       ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
       : "hover:bg-sidebar-accent/50 text-sidebar-foreground";
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast.success("Logout realizado com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao fazer logout.");
+    }
   };
 
   return (
@@ -138,6 +153,26 @@ export function AppSidebar() {
               </div>
             </div>
           </div>
+
+          {/* User Info and Logout */}
+          {user && (
+            <div className="p-2 border-t border-sidebar-border mt-auto">
+              <div className="flex items-center justify-center group-hover:justify-start gap-3 px-3 py-2 rounded-lg text-sidebar-foreground">
+                <UserCircle className="h-5 w-5 flex-shrink-0" />
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-hidden whitespace-nowrap">
+                  {user.email}
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                className="w-full flex items-center justify-center group-hover:justify-start gap-3 px-3 py-2 rounded-lg text-sidebar-foreground hover:bg-sidebar-accent/50"
+                onClick={handleLogout}
+              >
+                <LogOut className="h-5 w-5 flex-shrink-0" />
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-hidden whitespace-nowrap">Sair</span>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </TooltipProvider>
