@@ -6,9 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { ChevronDown, ChevronUp, Search, X, Bookmark, Clock, CheckCircle, XCircle, AlertCircle, Filter, SlidersHorizontal, Grid3X3, List, Plus } from "lucide-react";
+import { ChevronDown, ChevronUp, Search, X, Bookmark, Clock, CheckCircle, XCircle, AlertCircle, Filter, SlidersHorizontal, Grid3X3, List, Plus, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ListaQuestoes } from "@/components/ListaQuestoes";
 import { useQuestoes } from "@/hooks/useQuestoes";
 
 // Dados estáticos para demonstração
@@ -68,7 +67,33 @@ export default function QuestoesPage() {
   const [respostasSelecionadas, setRespostasSelecionadas] = useState<{[key: string]: string}>({});
   const [questoesPorPagina, setQuestoesPorPagina] = useState("10");
   const [visualizacao, setVisualizacao] = useState<"grid" | "list">("list");
-  const { questoes, loading, error } = useQuestoes();
+  const { questoes: questoesUsuario, loading, error, deleteQuestao } = useQuestoes();
+  
+  // Combinar questões estáticas com questões do usuário
+  const todasQuestoes = [
+    ...questoesUsuario.map(q => ({
+      id: q.id,
+      disciplina: q.disciplina || "Sem disciplina",
+      assunto: q.assunto || "Sem assunto",
+      nivel: q.nivel || "Médio",
+      prova: "Questão Criada",
+      cargo: "Usuário",
+      ano: new Date(q.created_at).getFullYear(),
+      pergunta: q.enunciado,
+      alternativas: q.alternativas?.map(alt => ({
+        letra: alt.letra,
+        texto: alt.texto
+      })) || [],
+      respostaCorreta: q.alternativas?.find(alt => alt.correta)?.letra || "A",
+      status: "nao-resolvida",
+      tipo: "usuario",
+      questaoOriginal: q
+    })),
+    ...questoesEstaticas.map(q => ({
+      ...q,
+      tipo: "estatica"
+    }))
+  ];
   
   // Filtros individuais
   const [palavraChave, setPalavraChave] = useState("");
@@ -119,9 +144,9 @@ export default function QuestoesPage() {
               <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
                 Sistema de Questões
               </h1>
-              <p className="text-sm text-muted-foreground">
-                {questoesEstaticas.length} questões disponíveis • Filtragem avançada
-              </p>
+              <div className="text-sm text-muted-foreground">
+                {todasQuestoes.length} questões disponíveis • Filtragem avançada
+              </div>
             </div>
             
             <div className="flex items-center gap-3">
@@ -327,7 +352,7 @@ export default function QuestoesPage() {
           <div className="flex items-center justify-between py-4 px-6 bg-card/40 rounded-lg border border-border/50 backdrop-blur-sm">
             <div className="flex items-center gap-4">
               <div className="text-sm font-medium">
-                <span className="text-primary font-semibold">{questoesEstaticas.length}</span>
+                <span className="text-primary font-semibold">{todasQuestoes.length}</span>
                 <span className="text-muted-foreground"> questões encontradas</span>
               </div>
               <div className="h-4 w-px bg-border"></div>
@@ -349,12 +374,16 @@ export default function QuestoesPage() {
             </Select>
           </div>
 
-          {/* Componente de Lista de Questões do Supabase */}
-          <ListaQuestoes />
-
-          {/* Cards de Questões Redesenhadas (Estáticas) */}
+          {/* Cards de Questões Unificadas */}
           <div className={visualizacao === "grid" ? "grid grid-cols-1 lg:grid-cols-2 gap-6" : "space-y-6"}>
-            {questoesEstaticas.map((questao) => (
+            {loading ? (
+              <div className="text-center py-8">Carregando questões...</div>
+            ) : error ? (
+              <div className="text-center py-8 text-destructive">Erro: {error}</div>
+            ) : todasQuestoes.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">Nenhuma questão encontrada. Crie sua primeira questão!</div>
+            ) : (
+              todasQuestoes.map((questao) => (
               <Card key={questao.id} className="group hover:shadow-xl transition-all duration-300 bg-card/60 backdrop-blur-sm border-border/50 hover:border-primary/30 overflow-hidden">
                 <CardHeader className="pb-3 relative">
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-primary/60 to-primary/30"></div>
@@ -363,7 +392,7 @@ export default function QuestoesPage() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-3">
                         <Badge variant="outline" className="font-mono text-xs bg-muted/50">
-                          {questao.id}
+                          {questao.tipo === "usuario" ? questao.id.substring(0, 8).toUpperCase() : questao.id}
                         </Badge>
                         {getStatusIcon(questao.status)}
                       </div>
@@ -442,14 +471,28 @@ export default function QuestoesPage() {
                       <Bookmark className="h-4 w-4" />
                       Adicionar ao Caderno
                     </Button>
-                    <Button size="sm" className="gap-2 bg-primary hover:bg-primary-hover shadow-md">
-                      <CheckCircle className="h-4 w-4" />
-                      Responder
-                    </Button>
+                    <div className="flex gap-2">
+                      {questao.tipo === "usuario" && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="gap-2 text-destructive hover:text-destructive"
+                          onClick={() => deleteQuestao(questao.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          Excluir
+                        </Button>
+                      )}
+                      <Button size="sm" className="gap-2 bg-primary hover:bg-primary-hover shadow-md">
+                        <CheckCircle className="h-4 w-4" />
+                        Responder
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            ))
+            )}
           </div>
         </div>
       </div>
