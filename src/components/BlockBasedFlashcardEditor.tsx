@@ -399,8 +399,9 @@ export function BlockBasedFlashcardEditor({ onSave, placeholder, deckId }: Block
         const back = parts[1].trim();
         if (front && back) {
           // Salvar o flashcard pai primeiro (sem parentId)
+          console.log("BlockBasedFlashcardEditor - calling onSave with:", { front, back, type: "traditional", hiddenWordIndices: [], hiddenWords: [], explanation: undefined, parentId: undefined, deckId });
           const savedParentId = await onSave(front, back, "traditional", [], [], undefined, undefined, deckId);
-          console.log("savedParentId from onSave:", savedParentId);
+          console.log("BlockBasedFlashcardEditor - received savedParentId:", savedParentId);
           if (savedParentId) {
             actualParentId = savedParentId;
             // Atualizar o bloco pai no estado local para refletir que ele foi salvo
@@ -430,8 +431,9 @@ export function BlockBasedFlashcardEditor({ onSave, placeholder, deckId }: Block
       const back = parentBlock.flashcardData.back;
       if (front && back) {
         // Salvar o flashcard pai novamente (sem parentId)
+        console.log("BlockBasedFlashcardEditor - calling onSave (re-save) with:", { front, back, type: "traditional", hiddenWordIndices: [], hiddenWords: [], explanation: undefined, parentId: undefined, deckId });
         const savedParentId = await onSave(front, back, "traditional", [], [], undefined, undefined, deckId);
-        console.log("savedParentId from onSave (re-save):", savedParentId);
+        console.log("BlockBasedFlashcardEditor - received savedParentId (re-save):", savedParentId);
         if (savedParentId) {
           actualParentId = savedParentId;
           setBlocks(prev => prev.map(block => 
