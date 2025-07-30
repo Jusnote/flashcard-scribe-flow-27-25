@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils';
 import { Flashcard } from '@/types/flashcard';
 
 interface ModernFlashcardEditorProps {
-  onSave: (front: string, back: string, type?: 'traditional' | 'word-hiding' | 'true-false', hiddenWordIndices?: number[], hiddenWords?: string[], explanation?: string) => void;
+  onSave: (front: string, back: string, type?: 'traditional' | 'word-hiding' | 'true-false', hiddenWordIndices?: number[], hiddenWords?: string[], explanation?: string, parentId?: string, deckId?: string) => Promise<string | null>;
   placeholder?: string;
   existingCards?: Flashcard[];
   onUpdateCard?: (cardId: string, front: string, back: string, explanation?: string, hiddenWords?: string[]) => void;
@@ -159,7 +159,7 @@ export function ModernFlashcardEditor({ onSave, placeholder, existingCards = [],
     return textBeforeCursor.split('\n').length - 1;
   };
 
-  const saveCurrentLine = () => {
+  const saveCurrentLine = async () => {
     const currentLine = getCurrentLine().trim();
     if (!currentLine) return;
 
@@ -169,20 +169,20 @@ export function ModernFlashcardEditor({ onSave, placeholder, existingCards = [],
       const cleanText = currentLine.replace(/\{\{([^}]+)\}\}/g, '$1');
       const words = hiddenWords;
       const hiddenWordIndices = FlashcardParser.createHiddenWordIndices(cleanText, words);
-      onSave("Texto com palavras ocultas", cleanText, 'word-hiding', hiddenWordIndices, words);
+      await onSave("Texto com palavras ocultas", cleanText, 'word-hiding', hiddenWordIndices, words);
     } else if (trueFalseAnswer !== null) {
       // Flashcard certo/errado
       const explanation = trueFalseAnswer ? "Correto" : "Incorreto";
-      onSave(currentLine, trueFalseAnswer ? "Verdadeiro" : "Falso", 'true-false', undefined, undefined, explanation);
+      await onSave(currentLine, trueFalseAnswer ? "Verdadeiro" : "Falso", 'true-false', undefined, undefined, explanation);
     } else if (currentLine.includes(' == ')) {
       // Flashcard tradicional
       const parsed = FlashcardParser.parse(currentLine);
       if (parsed) {
-        onSave(parsed.front, parsed.back, 'traditional');
+        await onSave(parsed.front, parsed.back, 'traditional');
       }
     } else {
       // Texto livre - criar como tradicional simples
-      onSave(currentLine, "Resposta a ser definida", 'traditional');
+      await onSave(currentLine, "Resposta a ser definida", 'traditional');
     }
 
     // Reset para próxima linha
@@ -276,10 +276,10 @@ export function ModernFlashcardEditor({ onSave, placeholder, existingCards = [],
   };
 
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+  const handleKeyDown = async (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      saveCurrentLine();
+      await saveCurrentLine();
       
       // Adicionar nova linha
       const lines = text.split('\n');

@@ -165,7 +165,7 @@ export function useSupabaseFlashcards() {
     front: string, 
     back: string, 
     parentId?: string, 
-    type: 'traditional' | 'word-hiding' = 'traditional',
+    type: 'traditional' | 'word-hiding' | 'true-false' = 'traditional',
     hiddenWordIndices?: number[],
     hiddenWords?: string[]
   ): Promise<string | null> => {

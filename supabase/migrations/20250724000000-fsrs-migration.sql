@@ -11,7 +11,8 @@ ADD COLUMN IF NOT EXISTS last_review_fsrs TIMESTAMP WITH TIME ZONE,
 ADD COLUMN IF NOT EXISTS review_count INTEGER NOT NULL DEFAULT 0,
 ADD COLUMN IF NOT EXISTS type TEXT NOT NULL DEFAULT 'traditional',
 ADD COLUMN IF NOT EXISTS hidden_word_indices INTEGER[],
-ADD COLUMN IF NOT EXISTS hidden_words TEXT[];
+ADD COLUMN IF NOT EXISTS hidden_words TEXT[],
+ADD COLUMN IF NOT EXISTS explanation TEXT;
 
 -- Update existing records to have proper FSRS defaults
 UPDATE public.flashcards 

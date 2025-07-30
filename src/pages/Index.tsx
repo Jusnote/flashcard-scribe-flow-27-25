@@ -71,24 +71,26 @@ const Index = () => {
     }
   };
 
-  const handleCreateCard = async (front: string, back: string, type: 'traditional' | 'word-hiding' | 'true-false' = 'traditional', hiddenWordIndices?: number[], hiddenWords?: string[], explanation?: string, parentId?: string): Promise<string | null> => {
-    if (!selectedDeckId) {
+  const handleCreateCard = async (front: string, back: string, type: 'traditional' | 'word-hiding' | 'true-false' = 'traditional', hiddenWordIndices?: number[], hiddenWords?: string[], explanation?: string, parentId?: string, deckId?: string): Promise<string | null> => {
+    const targetDeckId = deckId || selectedDeckId;
+    
+    if (!targetDeckId) {
       toast({
         title: "Selecione um deck",
         description: "Primeiro você precisa selecionar ou criar um deck.",
         variant: "destructive",
       });
-      return;
+      return null;
     }
 
-    const card = await createCard(selectedDeckId, front, back, parentId, type, hiddenWordIndices, hiddenWords, explanation);
+    const cardId = await createCard(targetDeckId, front, back, parentId, type, hiddenWordIndices, hiddenWords);
     
-    if (card) {
+    if (cardId) {
       toast({
         title: "Card criado!",
         description: "Seu flashcard foi adicionado ao deck.",
       });
-      return card.id;
+      return cardId;
     }
     return null;
   };
@@ -164,9 +166,9 @@ const Index = () => {
   const handleSaveSubCard = async (front: string, back: string, parentId: string) => {
     if (!studyDeckId) return;
     
-    const subCard = await createCard(studyDeckId, front, back, parentId);
+    const subCardId = await createCard(studyDeckId, front, back, parentId, 'traditional');
     
-    if (subCard) {
+    if (subCardId) {
       toast({
         title: "Sub-flashcard criado!",
         description: "A sub-pergunta foi adicionada com sucesso.",
