@@ -483,6 +483,14 @@ export function BlockBasedFlashcardEditor({ onSave, placeholder, deckId }: Block
     // Marcar o pai como tendo sub-flashcard ativo
     setActiveParentForSub(actualParentId);
     
+    // Garantir que o foco seja aplicado após a renderização
+    setTimeout(() => {
+      const textarea = document.querySelector(`[data-block-id="${newSubBlock.id}"]`) as HTMLTextAreaElement;
+      if (textarea) {
+        textarea.focus();
+      }
+    }, 0);
+    
   }, [blocks, generateBlockId, onSave, deckId]);
 
   // Nova função para finalizar flashcard tradicional quando pressionar Enter
