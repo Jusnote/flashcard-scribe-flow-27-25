@@ -398,7 +398,8 @@ export function BlockBasedFlashcardEditor({ onSave, placeholder, deckId }: Block
         const front = parts[0].trim();
         const back = parts[1].trim();
         if (front && back) {
-          const savedParentId = await onSave(front, back, "traditional", [], [], undefined, undefined, deckId);
+          // O parentId deve ser passado como o 7º parâmetro
+          const savedParentId = await onSave(front, back, "traditional", [], [], undefined, parentBlock.id, deckId);
           console.log("savedParentId from onSave:", savedParentId);
           if (savedParentId) {
             actualParentId = savedParentId;
@@ -428,7 +429,8 @@ export function BlockBasedFlashcardEditor({ onSave, placeholder, deckId }: Block
       const front = parentBlock.flashcardData.front;
       const back = parentBlock.flashcardData.back;
       if (front && back) {
-        const savedParentId = await onSave(front, back, "traditional", [], [], undefined, undefined, deckId);
+        // Repita a mesma correção para o trecho de re-save:
+        const savedParentId = await onSave(front, back, "traditional", [], [], undefined, parentBlock.id, deckId);
         console.log("savedParentId from onSave (re-save):", savedParentId);
         if (savedParentId) {
           actualParentId = savedParentId;
