@@ -267,6 +267,7 @@ export function useSupabaseFlashcards() {
         }
       }
 
+      console.log("Returning card ID:", newCard.id);
       return newCard.id;
     } catch (error) {
       console.error('Error creating card:', error);

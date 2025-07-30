@@ -83,7 +83,9 @@ const Index = () => {
       return null;
     }
 
+    console.log("handleCreateCard - calling createCard with:", { targetDeckId, front, back, parentId, type, hiddenWordIndices, hiddenWords });
     const cardId = await createCard(targetDeckId, front, back, parentId, type, hiddenWordIndices, hiddenWords);
+    console.log("handleCreateCard - received cardId:", cardId);
     
     if (cardId) {
       toast({
