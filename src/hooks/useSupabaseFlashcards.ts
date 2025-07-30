@@ -165,9 +165,10 @@ export function useSupabaseFlashcards() {
     front: string, 
     back: string, 
     parentId?: string, 
-    type: 'traditional' | 'word-hiding' = 'traditional',
+    type: 'traditional' | 'word-hiding' | 'true-false' = 'traditional',
     hiddenWordIndices?: number[],
-    hiddenWords?: string[]
+    hiddenWords?: string[],
+    explanation?: string
   ): Promise<string | null> => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -187,9 +188,9 @@ export function useSupabaseFlashcards() {
       const siblings = cards.filter(c => c.parentId === parentId && c.deckId === deckId);
       const order = siblings.length;
 
-      console.log("Creating card with parentId:", parentId);
-      console.log("Calculated level:", level);
-      console.log("Calculated order:", order);
+      console.log("createCard - Creating card with parentId:", parentId);
+      console.log("createCard - Calculated level:", level);
+      console.log("createCard - Calculated order:", order);
 
       const insertData = {
         user_id: user.id,
@@ -209,16 +210,19 @@ export function useSupabaseFlashcards() {
         last_review_fsrs: null, // Default for FSRS
         review_count: 0, // Default for FSRS
       };
-      console.log("Supabase insert payload:", insertData);
+      console.log("createCard - Supabase insert payload:", insertData);
       const { data, error } = await supabase
         .from("flashcards")
         .insert(insertData)
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("createCard - Supabase error:", error);
+        throw error;
+      }
 
-      console.log("Supabase insert data:", data);
+      console.log("createCard - Supabase insert data:", data);
 
       const newCard: Flashcard = {
         id: data.id,
@@ -243,7 +247,7 @@ export function useSupabaseFlashcards() {
         order: data.card_order,
       };
 
-      console.log("New card created with ID:", newCard.id);
+      console.log("createCard - New card created with ID:", newCard.id);
       setCards(prev => [...prev, newCard]);
 
       // Update parent's childIds if this is a sub-card
@@ -262,11 +266,16 @@ export function useSupabaseFlashcards() {
         if (updateError) {
           console.error("Error updating parent card:", updateError);
         } else {
-          // Recarregar todos os dados para garantir que os childIds do pai sejam atualizados
-          await loadData();
+          // Atualizar o estado local em vez de recarregar todos os dados
+          setCards(prev => prev.map(card => 
+            card.id === parentId 
+              ? { ...card, childIds: updatedChildIds }
+              : card
+          ));
         }
       }
 
+      console.log("createCard - Returning card ID:", newCard.id);
       return newCard.id;
     } catch (error) {
       console.error('Error creating card:', error);
