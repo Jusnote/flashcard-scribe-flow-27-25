@@ -88,6 +88,12 @@ const Index = () => {
     console.log("handleCreateCard - received cardId:", cardId);
     
     if (cardId) {
+      console.log("handleCreateCard - returning cardId:", cardId);
+    } else {
+      console.log("handleCreateCard - cardId is null/undefined");
+    }
+    
+    if (cardId) {
       toast({
         title: "Card criado!",
         description: "Seu flashcard foi adicionado ao deck.",
