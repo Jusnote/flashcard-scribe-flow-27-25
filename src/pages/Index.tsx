@@ -78,17 +78,17 @@ const Index = () => {
         description: "Primeiro você precisa selecionar ou criar um deck.",
         variant: "destructive",
       });
-      return;
+      return null;
     }
 
-    const card = await createCard(selectedDeckId, front, back, parentId, type, hiddenWordIndices, hiddenWords, explanation);
+    const cardId = await createCard(selectedDeckId, front, back, parentId, type, hiddenWordIndices, hiddenWords);
     
-    if (card) {
+    if (cardId) {
       toast({
         title: "Card criado!",
         description: "Seu flashcard foi adicionado ao deck.",
       });
-      return card.id;
+      return cardId;
     }
     return null;
   };
