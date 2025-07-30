@@ -73,6 +73,7 @@ const Index = () => {
 
   const handleCreateCard = async (front: string, back: string, type: 'traditional' | 'word-hiding' | 'true-false' = 'traditional', hiddenWordIndices?: number[], hiddenWords?: string[], explanation?: string, parentId?: string, deckId?: string): Promise<string | null> => {
     console.log("handleCreateCard - FUNCTION CALLED with params:", { front, back, type, hiddenWordIndices, hiddenWords, explanation, parentId, deckId });
+    console.log("handleCreateCard - useBlockEditor state:", useBlockEditor);
     const targetDeckId = deckId || selectedDeckId;
     
     if (!targetDeckId) {
