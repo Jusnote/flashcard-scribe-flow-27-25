@@ -403,24 +403,24 @@ export function BlockBasedFlashcardEditor({ onSave, placeholder, deckId }: Block
           try {
             const savedParentId = await onSave(front, back, "traditional", [], [], undefined, undefined, deckId);
             console.log("BlockBasedFlashcardEditor - received savedParentId:", savedParentId);
+            if (savedParentId) {
+              actualParentId = savedParentId;
+              // Atualizar o bloco pai no estado local para refletir que ele foi salvo
+              setBlocks(prev => prev.map(block => 
+                block.id === parentBlockId 
+                  ? { 
+                      ...block, 
+                      type: 'flashcard' as BlockType, 
+                      flashcardType: 'traditional',
+                      flashcardData: { id: savedParentId, front, back } 
+                    }
+                  : block
+              ));
+            } else {
+              console.error("Erro ao salvar o flashcard pai. ID não retornado.");
+            }
           } catch (error) {
             console.error("BlockBasedFlashcardEditor - error calling onSave:", error);
-          }
-          if (savedParentId) {
-            actualParentId = savedParentId;
-            // Atualizar o bloco pai no estado local para refletir que ele foi salvo
-            setBlocks(prev => prev.map(block => 
-              block.id === parentBlockId 
-                ? { 
-                    ...block, 
-                    type: 'flashcard' as BlockType, 
-                    flashcardType: 'traditional',
-                    flashcardData: { id: savedParentId, front, back } 
-                  }
-                : block
-            ));
-          } else {
-            console.error("Erro ao salvar o flashcard pai. ID não retornado.");
           }
         } else {
           console.error("Conteúdo do flashcard pai incompleto para salvar.");
@@ -439,21 +439,21 @@ export function BlockBasedFlashcardEditor({ onSave, placeholder, deckId }: Block
         try {
           const savedParentId = await onSave(front, back, "traditional", [], [], undefined, undefined, deckId);
           console.log("BlockBasedFlashcardEditor - received savedParentId (re-save):", savedParentId);
+          if (savedParentId) {
+            actualParentId = savedParentId;
+            setBlocks(prev => prev.map(block => 
+              block.id === parentBlockId 
+                ? { 
+                    ...block, 
+                    flashcardData: { ...block.flashcardData, id: savedParentId } 
+                  }
+                : block
+            ));
+          } else {
+            console.error("Erro ao salvar o flashcard pai novamente. ID não retornado.");
+          }
         } catch (error) {
           console.error("BlockBasedFlashcardEditor - error calling onSave (re-save):", error);
-        }
-        if (savedParentId) {
-          actualParentId = savedParentId;
-          setBlocks(prev => prev.map(block => 
-            block.id === parentBlockId 
-              ? { 
-                  ...block, 
-                  flashcardData: { ...block.flashcardData, id: savedParentId } 
-                }
-              : block
-          ));
-        } else {
-          console.error("Erro ao salvar o flashcard pai novamente. ID não retornado.");
         }
       }
     }
