@@ -400,8 +400,12 @@ export function BlockBasedFlashcardEditor({ onSave, placeholder, deckId }: Block
         if (front && back) {
           // Salvar o flashcard pai primeiro (sem parentId)
           console.log("BlockBasedFlashcardEditor - calling onSave with:", { front, back, type: "traditional", hiddenWordIndices: [], hiddenWords: [], explanation: undefined, parentId: undefined, deckId });
-          const savedParentId = await onSave(front, back, "traditional", [], [], undefined, undefined, deckId);
-          console.log("BlockBasedFlashcardEditor - received savedParentId:", savedParentId);
+          try {
+            const savedParentId = await onSave(front, back, "traditional", [], [], undefined, undefined, deckId);
+            console.log("BlockBasedFlashcardEditor - received savedParentId:", savedParentId);
+          } catch (error) {
+            console.error("BlockBasedFlashcardEditor - error calling onSave:", error);
+          }
           if (savedParentId) {
             actualParentId = savedParentId;
             // Atualizar o bloco pai no estado local para refletir que ele foi salvo
@@ -432,8 +436,12 @@ export function BlockBasedFlashcardEditor({ onSave, placeholder, deckId }: Block
       if (front && back) {
         // Salvar o flashcard pai novamente (sem parentId)
         console.log("BlockBasedFlashcardEditor - calling onSave (re-save) with:", { front, back, type: "traditional", hiddenWordIndices: [], hiddenWords: [], explanation: undefined, parentId: undefined, deckId });
-        const savedParentId = await onSave(front, back, "traditional", [], [], undefined, undefined, deckId);
-        console.log("BlockBasedFlashcardEditor - received savedParentId (re-save):", savedParentId);
+        try {
+          const savedParentId = await onSave(front, back, "traditional", [], [], undefined, undefined, deckId);
+          console.log("BlockBasedFlashcardEditor - received savedParentId (re-save):", savedParentId);
+        } catch (error) {
+          console.error("BlockBasedFlashcardEditor - error calling onSave (re-save):", error);
+        }
         if (savedParentId) {
           actualParentId = savedParentId;
           setBlocks(prev => prev.map(block => 
